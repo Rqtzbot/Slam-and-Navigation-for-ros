@@ -1,0 +1,97 @@
+TebLocalPlannerROS:
+  odom_topic: odom
+  map_frame: /map
+
+  #机器人robot
+  acc_lim_x: 1 #/最大x向加速度
+  acc_lim_y: 0.0 #/最大y向加速度
+  acc_lim_theta: 0.6 #/最大角加速度
+  max_vel_x: 0.5 #/最大x前向速度
+  max_vel_x_backwards: 0.7 #/最大倒车速度 teb算法不能完全禁止倒车
+  max_vel_y: 0.0  #/最大y前向速度
+  max_vel_theta: 1.0 #/最大转向角速度
+
+  min_turning_radius: 0.3 #机器人的最小转弯半径 麦伦和全向轮设置为0，阿克曼根据实际数据来设定
+  is_footprint_dynamic: false #如果机器人模型是变化的，则需要设置为true
+  footprint_model:
+    type: Circular
+    #vertices:[[0.16, 0.11], [-0.16, 0.11], [-0.16, -0.11], [0.16, -0.11]]
+    # line_start: [-0.15, 0.0] # 线模型起始坐标
+    # line_end: [0.15, 0.0] #线模型尾部坐标
+
+  #目标容忍 GoalTolerance
+  yaw_goal_tolerance: 0.05 #/目标xy偏移容忍度
+  xy_goal_tolerance: 0.10  #目标角度偏移容忍度
+  free_goal_vel: false     #允许机器人以最大速度驶向目的地 到达目的地时速度为0，此选项在竞速比赛中比较有用
+
+  #轨迹 Trajectory
+  dt_ref: 0.3 #路径规划的解析度，相邻位姿的时间，
+  dt_hysteresis: 0.1 #允许改变的时域解析度的浮动范围de_ref的%10
+  min_samples: 3 
+  global_plan_overwrite_orientation: true #覆盖全局路径中的局部路径点的朝向
+  global_plan_viapoint_sep: -0.1 #从全局计划中提取的每两个连续通过点之间的最小距离
+  max_global_plan_lookahead_dist: 1.0 #考虑优化的全局计划子集的最大长度（累积欧几里得距离）
+  force_reinit_new_goal_dist: 1.0 #/距离阈值，当目标点的距离超过一定距离时会更新轨迹
+  feasibility_check_no_poses: 5 #检测位姿可达到的时间间隔
+  publish_feedback: false #是否用于可视化发布，发布包含完整轨迹和活动障碍
+  allow_init_with_backwards_motion: false #为true，则当机器人初始位姿在起点位姿前面时，机器人可能通过倒退走到起点位置。
+  exact_arc_length: false #false，使用欧氏近似
+
+  #故障恢复 Recovery
+  shrink_horizon_backup: true #teb局部路径规划有时候也会失败。此时需要进入故障恢复，丢弃一部分路径，这个参数决定了是否丢弃一部分路径，如果设置为true，会裁减掉50%。
+  shrink_horizon_min_duration: 10.0 #用于判断当前时间与上一次成功规划之间的时间间隔，如果时间间隔超过该值就不做继续的处理的，说明失败有一段时间了，该进入错误模式了。
+
+  #障碍物 Obstacles
+  min_obstacle_dist: 0.5 #避障距离(障碍物膨胀半径)//
+  include_costmap_obstacles: true #是否将动态障碍物预测为速度模型
+  costmap_obstacles_behind_robot_dist: 1.0 #机器人后方障碍物的范围
+
+  inflation_dist: 0.05 #/膨胀距离//
+  dynamic_obstacle_inflation_dist: 0.6 #动态障碍物的膨胀范围
+  include_dynamic_obstacles: true #是否添加动态障碍物约束
+  legacy_obstacle_association: false #判断以何种方式添加障碍物边 true为旧的关联策略否则为新
+  obstacle_association_force_inclusion_factor: 0.5 #/例如，选择2.0以考虑半径为2.0*min_obstocle_dist内的障碍物。
+  obstacle_association_cutoff_factor: 5 #裁减距离，在添加障碍物边约束的时候，如果障碍物距离超过这个值就直接不考虑了。
+
+  costmap_converter_plugin: "" #插件
+  costmap_converter_spin_thread: true
+  costmap_converter_rate: 5.0
+
+  # 优化 Optimization
+  no_inner_iterations: 3  #/被外循环调用后内循环执行优化的次数
+  no_outer_iterations: 3  #/执行外循环的优化次数
+  penalty_epsilon: 0.1    #对于硬约束近似，在惩罚函数中添加安全范围
+  weight_acc_lim_x: 1.0   #最大x加速度权重0-1
+  weight_acc_lim_theta: 17.0  #/最大w加速度权重0-1
+  weight_max_vel_x: 3.0   #/最大x速度权重0-1
+  weight_max_vel_theta: 6.0  #/最大w速度权重0-1
+  weight_kinematics_nh: 100.0 #/调整顺应纵向运动和非顺应横向运动（扫射）之间的权衡。
+  weight_kinematics_forward_drive: 10 #/抑制倒车，迫使机器人只选择前进
+  weight_kinematics_turning_radius: 1000.0 #/值越大，机器人就越容易达到最小转弯半径
+  weight_optimaltime: 10 #/这个参数是最优时间权重，如果大了，那么车会在直道上快速加速，并且路径规划的也会切内道
+  weight_obstacle: 25.0 #/和障碍物的最小距离权重
+  weight_viapoint: 1.0 #经过路径点边的权重
+  weight_inflation: 0.05 #/膨胀层的权重
+  weight_adapt_factor: 2.0 #权重的自适应因子，每次内循环结束后，内循环权重都会乘以自适应因子
+  weight_dynamic_obstacle: 50
+  weight_dynamic_obstacle_inflation: 0.1
+ 
+  #HCPlanning(HomotopyClassPlanner)
+  enable_homotopy_class_planning: false 
+  enable_multithreading: false #/是否激活多线程并行规划多个轨迹是否激活多线程并行规划多个轨迹
+  max_number_classes: 1 #/4 改 2 规划出的最多轨迹数,这个参数是可以解决多个障碍堵路规划抖动问题，只有在 enable_homotopy_class_planning:为true有效
+  selection_cost_hysteresis: 1.0 #指定新的候选轨迹必须具有相对于先前选择的轨迹小于一定范围的轨迹成本才能被选择
+  selection_obst_cost_scale: 100.0 #仅用于选择“最佳”候选者的障碍成本术语的额外缩放
+  selection_viapoint_cost_scale: 1.0 #通过点成本条款的额外扩展，仅用于选择“最佳”候选人
+  selection_alternative_time_cost: false #如果为true，则时间成本将替换为总转换时间。
+  roadmap_graph_no_samples: 15 #如果simple_exploration处于关闭状态，则指定为创建路线图而生成的样本数
+  roadmap_graph_area_width: 5 #指定将在起点和终点之间生成采样的区域的宽度[m]（高度等于起点到终点的距离）
+  h_signature_prescaler: 1.0 #为了允许大量的障碍物，缩放障碍物的数值。不要选择极低，否则无法区分障碍物
+  h_signature_threshold: 0.1 #如果实部和复部的差值都低于指定的阈值，则假设两个h符号相等
+  obstacle_heading_threshold: 0.45 #指定障碍物航向和目标航向之间的标准化标量乘积的值，以便在探索时考虑它们（障碍物）
+  visualize_hc_graph: false #/可视化为探索新的homotopy类而创建的图
+  viapoints_all_candidates: true #如果为true，则不同拓扑的所有轨迹都附加到过孔点集，否则仅附加与初始/全局计划共享相同轨迹的轨迹
+  switching_blocking_period: 0.0 #指定允许切换到新等效类之前需要过期的持续时间（以秒为单位）
+  wheelbase: 0.2 #驱动轴和转向轴之间的距离（仅适用于启用“cmd_angle_instead_rotvel”的车载机器人）
+
+

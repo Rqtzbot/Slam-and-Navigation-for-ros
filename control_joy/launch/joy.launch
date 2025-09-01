@@ -1,0 +1,8 @@
+<launch>
+
+    <!-- 打开手柄节点 -->
+    <!-- <node pkg="control_joy" name="use_joy" type="1" /> -->
+    <!-- <node pkg="control_joy" name="use_joy" type="joy_save" /> -->
+    <node pkg="joy" name="joy" type="joy_node" />
+
+</launch>

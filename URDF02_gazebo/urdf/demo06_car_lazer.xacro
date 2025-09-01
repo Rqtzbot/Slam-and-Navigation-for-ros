@@ -1,0 +1,75 @@
+<robot name="mycar" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:property name="support_radius" value="0.01" /> <!--厚度x-->
+    <xacro:property name="support_length" value="0.15" /> <!--厚度y-->
+     <xacro:property name="support_mass" value="0.1" />
+    <xacro:property name="lazer_radius" value="0.03" /> <!--高度z-->
+    <xacro:property name="lazer_length" value="0.05" /> <!--高度z-->
+    <xacro:property name="lazer_mass" value="0.15" />
+    <xacro:property name="joint_support_x" value="0" /> <!--高度z-->
+    <xacro:property name="joint_support_y" value="0" /> <!--高度z-->
+    <xacro:property name="joint_support_z" value="${baselink_length/2+support_length/2}" /> <!--高度z-->
+
+    <xacro:property name="lazer_support_x" value="0" /> <!--高度z-->
+    <xacro:property name="lazer_support_y" value="0" /> <!--高度z-->
+    <xacro:property name="lazer_support_z" value="${support_length/2+lazer_length/2}" /> <!--高度z-->
+     <link name="support">
+        <visual>
+            <geometry>/   
+                <cylinder radius="${support_radius}" length="${support_length}"/>
+            </geometry>
+            <material name="yellow">
+                <color rgba="1 1 1 1" /><!--r红 g绿 b蓝 a不透明度-->
+            </material>
+        </visual>
+          <!--设置碰撞参数-->
+           <collision>
+             <geometry>
+                <cylinder radius="${support_radius}" length="${support_length}"/>
+            </geometry>
+           </collision>
+        <!--设置惯性矩阵-->
+        <xacro:cylinder_inertial_matrix m="${camera_mass}" r="${support_radius}" h="${support_length}"/>
+    </link>
+       <!--设置Gazeor中的颜色-->
+        <gazebo reference="support">
+            <material>Gazebo/White</material>
+        </gazebo>
+
+     <joint name="supportbase" type="fixed">
+        <parent link="base_link" />
+        <child link="support" />
+        <origin xyz="${joint_support_x} ${joint_support_y} ${joint_support_z}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="support_lazer">
+        <visual>
+            <geometry>
+                <cylinder radius="${lazer_radius}" length="${lazer_length}"/>
+            </geometry>
+            <material name="black">
+                <color rgba="0 0 0 1" /><!--r红 g绿 b蓝 a不透明度-->
+            </material>
+        </visual>
+        <!--设置碰撞参数-->
+           <collision>
+               <geometry>
+                <cylinder radius="${lazer_radius}" length="${lazer_length}"/>
+            </geometry>
+           </collision>
+            <!--设置惯性矩阵-->
+        <xacro:cylinder_inertial_matrix m="${lazer_mass}" r="${lazer_radius}" h="${lazer_length}"/>
+    </link>
+     <!--设置Gazeor中的颜色-->
+        <gazebo reference="support_lazer">
+            <material>Gazebo/Blue</material>
+        </gazebo>
+
+     <joint name="support_lazerbase" type="fixed">
+        <parent link="support" />
+        <child link="support_lazer" />
+        <origin xyz="${lazer_support_x} ${lazer_support_y} ${lazer_support_z}" rpy="0 0 0"/>
+    </joint>
+
+
+
+</robot>

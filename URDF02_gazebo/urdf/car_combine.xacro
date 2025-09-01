@@ -1,0 +1,10 @@
+<robot name="mycar" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:include filename="GXjuzhen.xacro" /><!--惯性矩阵-->
+    <xacro:include filename="demo04_car_dipan.xacro" /><!--底盘-->
+    <xacro:include filename="demo05_car_camera.xacro" /><!--摄像机-->
+    <xacro:include filename="demo06_car_lazer.xacro" /><!--雷达-->
+    <xacro:include filename="gazebo/move.xacro" /><!--底盘仿真-->
+    <xacro:include filename="gazebo/setlazer.xacro" /><!--雷达仿真-->
+    <xacro:include filename="gazebo/setcamera.xacro" /><!--摄像机仿真-->
+    <xacro:include filename="gazebo/kinect.xacro" /><!--深度摄像机仿真-->
+</robot>

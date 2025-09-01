@@ -1,0 +1,5 @@
+<!--集成SLAM与导航，实现机器人自主移动并进行地图构建-->
+<launch>
+    <include file="$(find nav_demo)/launch/nav01_slam.launch"/>
+    <include file="$(find nav_demo)/launch/nav05_path.launch"/>
+</launch>

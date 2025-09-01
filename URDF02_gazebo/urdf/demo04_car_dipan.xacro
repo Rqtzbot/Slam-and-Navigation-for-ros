@@ -1,0 +1,127 @@
+<robot name="mycar" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:property name="foot_link" value="0.001" />
+     <link name="base_footlink">
+        <visual>
+            <geometry>
+                <sphere radius="${foot_link}" />
+            </geometry>
+        </visual>
+    </link>
+    <!--底盘属性-->
+    <xacro:property name="baselink_radius" value="0.1" />
+    <xacro:property name="baselink_length" value="0.08" />
+    <xacro:property name="baselink_mass" value="2" />
+    <xacro:property name="LiDijuli" value="0.015" />
+    <xacro:property name="base_joint_z" value="${baselink_length/2+LiDijuli}" />
+
+     <link name="base_link">
+        <visual>
+            <geometry>
+                <cylinder radius="${baselink_radius}" length="${baselink_length}"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <material name="baselink_color">
+                <color rgba="1 1 1 1" /><!--r红 g绿 b蓝 a不透明度-->
+            </material>
+        </visual>
+        <!--设置碰撞参数-->
+        <collision>
+            <geometry>
+                 <cylinder radius="${baselink_radius}" length="${baselink_length}"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </collision>
+      <!--设置惯性矩阵-->
+     <xacro:cylinder_inertial_matrix m="${baselink_mass}" r="${baselink_radius}" h="${baselink_length}"/>
+    </link>
+    <!--设置Gazeor中的颜色-->
+    <gazebo reference="base_link">
+        <material>Gazebo/White</material>
+    </gazebo>
+     <joint name="linkfootlink" type="fixed">
+        <parent link="base_footlink" />
+        <child link="base_link" />
+        <origin xyz="0 0 ${base_joint_z}" rpy="0 0 0"/>
+    </joint>
+    <!--驱动轮属性+宏-->
+    <xacro:property name="wheel_radius" value="0.0325" />
+    <xacro:property name="wheel_length" value="0.015" />
+    <xacro:property name="wheel_mass" value="0.05" />
+    <xacro:property name="PI" value="3.1415927" />
+    <xacro:property name="wheel_joint_z" value="${(baselink_length/2+LiDijuli-wheel_radius)*-1}" />
+    <xacro:macro name="whlee_func" params="whlee_name flag"><!--宏-->
+        <link name="${whlee_name}">
+            <visual>
+                <geometry>
+                    <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="${PI/2} 0 0"/>
+                <material name="lefewheel_color">
+                    <color rgba="0 0 0 1" /><!--r红 g绿 b蓝 a不透明度-->
+                </material>
+            </visual>
+             <!--设置碰撞参数-->
+        <collision>
+           <geometry>
+                    <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+          </geometry>
+          <origin xyz="0 0 0" rpy="${PI/2} 0 0"/>
+        </collision>
+         <!--设置惯性矩阵-->
+        <xacro:cylinder_inertial_matrix m="${wheel_mass}" r="${wheel_radius}" h="${wheel_length}"/>
+        </link>
+         <!--设置Gazeor中的颜色-->
+        <gazebo reference="${whlee_name}">
+            <material>Gazebo/Black</material>
+        </gazebo>
+
+        <joint name="${whlee_name}_link" type="continuous">
+            <parent link="base_link" />
+            <child link="${whlee_name}" />
+            <origin xyz="0 ${0.1*flag} ${wheel_joint_z}" rpy="0 0 0"/>
+            <axis xyz="0 1 0" />
+        </joint>
+    </xacro:macro>
+    <xacro:whlee_func whlee_name="left_wheel" flag="1" />
+    <xacro:whlee_func whlee_name="right_wheel" flag="-1" />  
+
+    <!--万向轮属性+宏-->
+    <xacro:property name="FrontBackwheel_radius" value="0.0075" />
+    <xacro:property name="FrontBackwheel_mass" value="0.01" />
+    <xacro:property name="FBwheel_joint_z" value="${(baselink_length/2+LiDijuli-FrontBackwheel_radius)*-1}" />
+    <xacro:macro name="FBwheel_func" params="FBwheel_name flag" >
+        <link name="${FBwheel_name}">
+            <visual>
+                <geometry>
+                    <sphere radius="${FrontBackwheel_radius}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="frontwheel_color">
+                    <color rgba="0 0 0 1" /><!--r红 g绿 b蓝 a不透明度-->
+                </material>
+            </visual>
+               <!--设置碰撞参数-->
+           <collision>
+                <geometry>
+                        <sphere radius="${FrontBackwheel_radius}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+           </collision>
+              <!--设置惯性矩阵-->
+        <xacro:sphere_inertial_matrix m="${FrontBackwheel_mass}" r="${FrontBackwheel_radius}" />
+        </link>
+           <!--设置Gazeor中的颜色-->
+        <gazebo reference="${FBwheel_name}">
+            <material>Gazebo/Blue</material>
+        </gazebo>
+
+        <joint name="${FBwheel_name}_link" type="continuous">
+            <parent link="base_link" />
+            <child link="${FBwheel_name}" />
+            <origin xyz="${flag*0.08} 0 ${FBwheel_joint_z}" rpy="0 0 0"/>
+            <axis xyz="0 1 0" />
+        </joint>
+   </xacro:macro>
+    <xacro:FBwheel_func FBwheel_name="frontwheel" flag="1" />
+    <xacro:FBwheel_func FBwheel_name="backwheel" flag="-1" />
+</robot>
